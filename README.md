@@ -1,6 +1,10 @@
 # About
 
-Docker Compose setup for CSP Reporter using [PostgreSQL](https://www.postgresql.org/), [Redis](https://redis.io/) and [Nginx](https://nginx.org/).
+Docker Compose setup for **CSP Reporter** using [PostgreSQL](https://www.postgresql.org/), [Redis](https://redis.io/) and [Nginx](https://nginx.org/).
+
+[![Build Status - Main branch](https://img.shields.io/github/actions/workflow/status/AlfredoRamos/csp-reporter-docker/ci.yml?branch=main&style=flat-square&label=main)](https://github.com/AlfredoRamos/csp-reporter-docker/actions/workflows/ci.yml)
+[![Build Status - Dev branch](https://img.shields.io/github/actions/workflow/status/AlfredoRamos/csp-reporter-docker/ci.yml?branch=dev&style=flat-square&label=dev)](https://github.com/AlfredoRamos/csp-reporter-docker/actions/workflows/ci.yml)
+[![Latest Stable Version](https://img.shields.io/github/v/tag/AlfredoRamos/csp-reporter-docker?sort=semver&style=flat-square&label=stable)](https://github.com/AlfredoRamos/csp-reporter-docker/tags)
 
 # Setup
 
