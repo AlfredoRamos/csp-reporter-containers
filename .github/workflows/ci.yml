@@ -41,7 +41,7 @@ jobs:
         with:
           scan-type: 'image'
           scanners: 'vuln,misconfig,secret'
-          image-ref: 'node:22.7.0-alpine'
+          image-ref: 'node:23.1.0-alpine'
           trivy-config: 'trivy.yaml'
 
       - name: Scan PostgreSQL image
