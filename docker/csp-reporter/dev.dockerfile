@@ -26,16 +26,14 @@ LABEL maintainer "Alfredo Ramos <alfredoramos@duck.com>"
 RUN apk add --no-cache curl
 
 # App setup
-WORKDIR /srv/http
+WORKDIR /srv/http/backend
 RUN adduser -D -g http http
-COPY docker/csp-reporter/start.sh /
-RUN chmod a+x /start.sh
-COPY --from=backend-build /srv/http/backend/.env backend/
+COPY --from=backend-build /srv/http/backend/.env ./
 COPY --from=backend-build /usr/local/bin/csp-reporter /go/bin/asynq /usr/local/bin/
-COPY --from=backend-build /srv/http/backend/keys/ backend/keys/
-COPY --from=backend-build /srv/http/backend/casbin/ backend/casbin/
-COPY --from=backend-build /srv/http/backend/templates/ backend/templates/
-COPY --from=backend-build /srv/http/backend/tasks/config.yml backend/tasks/
+COPY --from=backend-build /srv/http/backend/keys/ keys/
+COPY --from=backend-build /srv/http/backend/casbin/ casbin/
+COPY --from=backend-build /srv/http/backend/templates/ templates/
+COPY --from=backend-build /srv/http/backend/tasks/config.yml tasks/
 
 # Filesystem setup
 RUN chown -R http:http .
@@ -44,4 +42,4 @@ RUN chown -R http:http .
 USER http
 
 # Start server
-CMD ["/start.sh"]
+CMD ["csp-reporter"]

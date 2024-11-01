@@ -33,7 +33,9 @@
 !backend/.env
 !backend/keys/signing-private.json
 !backend/keys/signing-public.json
-!backend/keys/signing-encryption.json
-!backend/keys/signing-encryption.json
+!backend/keys/encryption-private.json
+!backend/keys/encryption-public.json
 !frontend/.env
+!frontend/keys/encryption-private.json
+!frontend/keys/signing-public.json
 !docker/nginx/dhparam.pem
