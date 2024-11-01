@@ -51,7 +51,7 @@ jobs:
         with:
           scan-type: 'image'
           scanners: 'vuln,misconfig,secret'
-          image-ref: 'postgres:16-alpine'
+          image-ref: 'postgres:17-alpine'
           trivy-config: 'trivy.yaml'
 
       - name: Scan Redis image
