@@ -18,9 +18,9 @@ FROM nginx:mainline-alpine
 LABEL maintainer "Alfredo Ramos <alfredoramos@duck.com>"
 
 # App setup
-WORKDIR /srv/http
+WORKDIR /srv/http/frontend
 RUN adduser -D -g http http
-COPY --from=frontend-build /srv/http/frontend/dist/ frontend/dist/
+COPY --from=frontend-build /srv/http/frontend/dist/ dist/
 
 # Filesystem setup
 RUN chown -R http:http .

@@ -46,7 +46,7 @@ sudo systemctl enable --now docker-prune.timer
 ### Clone with submodules
 
 ```shell
-git clone -b master --recurse-submodules --remote-submodules -j 10 -- https://github.com/AlfredoRamos/csp-reporter-docker.git
+git clone -b main --recurse-submodules --remote-submodules -j 10 -- https://github.com/AlfredoRamos/csp-reporter-docker.git
 ```
 
 ### Initialize
@@ -58,8 +58,8 @@ git submodule init
 ### Add
 
 ```shell
-git submodule add -b master -- https://github.com/AlfredoRamos/csp-reporter-backend.git backend
-git submodule add -b master -- https://github.com/AlfredoRamos/csp-reporter-frontend.git frontend
+git submodule add -b main -- https://github.com/AlfredoRamos/csp-reporter-backend.git backend
+git submodule add -b main -- https://github.com/AlfredoRamos/csp-reporter-frontend.git frontend
 ```
 
 ### Update
@@ -71,13 +71,13 @@ git submodule update --init --remote -j 10
 ### Change branch
 
 ```shell
-git submodule set-branch -b master -- backend && git submodule set-branch -b master -- frontend
+git submodule set-branch -b main -- backend && git submodule set-branch -b main -- frontend
 ```
 
 ### Reset
 
 ```shell
-git submodule foreach 'git remote prune origin && git fetch origin && git checkout master && git reset --hard origin/master'
+git submodule foreach 'git remote prune origin && git fetch origin && git checkout main && git reset --hard origin/main'
 ```
 
 # Configuration
@@ -93,6 +93,13 @@ See the README in the [AlfredoRamos/csp-reporter-backend](https://github.com/Alf
 ### Frontend
 
 See the README in the [AlfredoRamos/csp-reporter-frontend](https://github.com/AlfredoRamos/csp-reporter-frontend) repository.
+
+Additionally copy the signing and encryption keys for JWT (JWS + JWE) validation and parsing.
+
+```shell
+mkdir -p frontend/keys
+sudo cp -a backend/keys/{signing-public,encryption-private}.json frontend/keys/
+```
 
 # Run app
 
@@ -165,7 +172,7 @@ docker compose run --rm csp-reporter npm run --prefix frontend build
 ### Start containers
 
 ```shell
-docker compose -f docker compose.dev.yml --env-file backend/.env up --build --force-recreate --remove-orphans -d
+docker compose -f docker-compose.dev.yml --env-file backend/.env up --build --force-recreate --remove-orphans -d
 ```
 
 ### Stop containers
