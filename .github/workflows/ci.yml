@@ -6,6 +6,51 @@ on:
   pull_request: {}
 
 jobs:
+  test:
+    if: ${{ !contains(github.event.head_commit.message, 'skip ci') }}
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Generate environment variables
+        id: setup-env
+        run: |
+          cp backend/.env.example backend/.env
+          sed -ri 's/^(DB_HOST=).*?$/\1postgresql/' backend/.env
+          sed -ri 's/^(DB_NAME=)/\1test_csp_reporter/' backend/.env
+          sed -ri 's/^(DB_USER=)/\1postgres/' backend/.env
+          sed -ri "s/^(DB_PASS=)/\1$(dd bs=512 if=/dev/urandom count=1 2>/dev/null | LC_ALL=C tr -dc "a-zA-Z0-9" | head -c 35)/" backend/.env
+          sed -ri 's/^(REDIS_HOST=).*?$/\1redis/' backend/.env
+          sed -ri "s/^(REDIS_PASS=)/\1$(dd bs=512 if=/dev/urandom count=1 2>/dev/null | LC_ALL=C tr -dc "a-zA-Z0-9" | head -c 35)/" backend/.env
+          sed -ri "s/^(COOKIE_SECRET_KEY=)/\1$(dd bs=512 if=/dev/urandom count=1 2>/dev/null | LC_ALL=C tr -dc "a-zA-Z0-9" | head -c 32)/" backend/.env
+          sed -ri 's/^(HCAPTCHA_SITE_KEY=)/\110000000-ffff-ffff-ffff-000000000001/' backend/.env
+          sed -ri 's/^(HCAPTCHA_SECRET_KEY=)/\10x0000000000000000000000000000000000000000/' backend/.env
+          cp frontend/.env.example frontend/.env
+          sed -ri 's/^(VITE_APP_DOMAIN=)/\1localhost/' frontend/.env
+          sed -ri 's/^(VITE_HCAPTCHA_SITE_KEY=)/\110000000-ffff-ffff-ffff-000000000001/' frontend/.env
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '^1.23.1'
+
+      - name: Install dependencies
+        run: go install github.com/go-jose/go-jose/v4/jose-util@latest
+
+      - name: Setup keys
+        run: |
+          mkdir -p {backend,frontend}/keys
+          (cd backend/keys && jose-util generate-key --use sig --alg EdDSA && mv jwk-sig-*-priv.json signing-private.json && mv jwk-sig-*-pub.json signing-public.json)
+          (cd backend/keys && jose-util generate-key --use enc --alg ECDH-ES+A256KW && mv jwk-enc-*-priv.json encryption-private.json && mv jwk-enc-*-pub.json encryption-public.json)
+          cp -a backend/keys/{signing-public,encryption-private}.json frontend/keys/
+
+      - name: Build images
+        run: docker compose --env-file backend/.env build
+
   security:
     if: ${{ !contains(github.event.head_commit.message, 'skip security') }}
     name: Security
