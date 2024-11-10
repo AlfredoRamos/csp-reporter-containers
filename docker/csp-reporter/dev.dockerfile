@@ -14,7 +14,7 @@ RUN rm -fR tmp
 COPY backend/go.mod backend/go.sum ./
 RUN go mod tidy
 COPY backend/ ./
-RUN go build -o /usr/local/bin/csp-reporter . && chmod a+x /usr/local/bin/csp-reporter; \
+RUN go build -o /usr/local/bin/csp-reporter ./cmd/api/... && chmod a+x /usr/local/bin/csp-reporter; \
 	go install github.com/hibiken/asynq/tools/asynq@latest; \
 	apk del .build-backend
 
