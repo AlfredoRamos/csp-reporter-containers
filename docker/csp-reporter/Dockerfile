@@ -35,7 +35,8 @@ COPY --from=backend-build /srv/http/backend/templates/ templates/
 COPY --from=backend-build /srv/http/backend/tasks/config.yml tasks/
 
 # Filesystem setup
-RUN chown -R http:http -- tasks/config.yml
+RUN chown -R http:http -- tasks/config.yml && \
+	chmod 644 keys/*.json
 
 # Non-root user
 USER http
