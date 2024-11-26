@@ -21,6 +21,7 @@
 **/tmp
 **/.golangci.yml
 **/.air*.toml
+**/*_test.go
 
 # Frontend
 **/node_modules
