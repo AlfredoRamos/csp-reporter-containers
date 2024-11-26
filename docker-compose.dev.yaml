@@ -58,6 +58,7 @@ services:
 
   postgresql:
     image: postgres:17-alpine
+    user: '70'
     restart: unless-stopped
     environment:
       POSTGRES_DB: "${DB_NAME}"
@@ -86,6 +87,7 @@ services:
 
   redis:
     image: redis:7-alpine
+    user: 'redis'
     restart: unless-stopped
     command: >
       --requirepass "${REDIS_PASS}"
