@@ -19,8 +19,22 @@ LABEL maintainer "Alfredo Ramos <alfredoramos@duck.com>"
 
 # App setup
 WORKDIR /srv/http/frontend
-RUN adduser -D -g http http
 COPY --from=frontend-build /srv/http/frontend/dist/ dist/
 
 # Filesystem setup
-RUN chown -R http:http .
+RUN mkdir -p /var/cache/nginx/client_temp \
+	/var/cache/nginx/proxy_temp \
+	/var/cache/nginx/fastcgi_temp \
+	/var/cache/nginx/uwsgi_temp \
+	/var/cache/nginx/scgi_temp && \
+	touch /var/run/nginx.pid && \
+	chown -R nginx:nginx /etc/nginx/ \
+	/var/cache/nginx \
+	/var/log/nginx \
+	/var/run/nginx.pid /run/nginx.pid
+
+# Non-root user
+USER nginx
+
+# Start server
+CMD ["nginx", "-g", "daemon off;"]
