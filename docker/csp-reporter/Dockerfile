@@ -26,7 +26,7 @@ RUN apk add --no-cache curl
 
 # App setup
 WORKDIR /srv/http/backend
-RUN adduser -D -g http http
+RUN adduser -D -H -g http http
 COPY --from=backend-build /srv/http/backend/.env ./
 COPY --from=backend-build /usr/local/bin/csp-reporter /go/bin/asynq /usr/local/bin/
 COPY --from=backend-build /srv/http/backend/keys/ keys/
@@ -35,7 +35,7 @@ COPY --from=backend-build /srv/http/backend/templates/ templates/
 COPY --from=backend-build /srv/http/backend/tasks/config.yml tasks/
 
 # Filesystem setup
-RUN chown -R http:http .
+RUN chown -R http:http -- tasks/config.yml
 
 # Non-root user
 USER http
