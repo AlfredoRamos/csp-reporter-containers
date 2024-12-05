@@ -32,10 +32,11 @@
 
 # Exceptions
 !backend/.env
-!backend/keys/signing-private.json
-!backend/keys/signing-public.json
-!backend/keys/encryption-private.json
-!backend/keys/encryption-public.json
+!backend/.git
+!backend/internal/keys/signing-private.json
+!backend/internal/keys/signing-public.json
+!backend/internal/keys/encryption-private.json
+!backend/internal/keys/encryption-public.json
 !frontend/.env
 !frontend/keys/encryption-private.json
 !frontend/keys/signing-public.json

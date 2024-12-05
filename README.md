@@ -98,7 +98,7 @@ Additionally copy the signing and encryption keys for JWT (JWS + JWE) validation
 
 ```shell
 mkdir -p frontend/keys
-sudo cp -a backend/keys/{signing-public,encryption-private}.json frontend/keys/
+sudo cp -a backend/internal/keys/{signing-public,encryption-private}.json frontend/keys/
 ```
 
 # Run app
