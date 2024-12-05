@@ -1,21 +1,22 @@
 # ---[ Arguments ]---
 ARG ALPINE_VERSION=3.20
-ARG GO_VERSION=1.23.1-alpine
+ARG GO_VERSION=1.23.4-alpine
 
 # ---[ Backend ]---
 FROM golang:${GO_VERSION} AS backend-build
 LABEL maintainer "Alfredo Ramos <alfredoramos@duck.com>"
 
 # Backend setup
-RUN apk add --no-cache --virtual .build-backend postgresql-dev
+RUN apk add --no-cache --virtual .build-backend make git postgresql-dev
 WORKDIR /srv/http/backend
 RUN rm -fR tmp
 COPY backend/go.mod backend/go.sum ./
 RUN go mod tidy
 COPY backend/ ./
-RUN go build -ldflags='-s -w' -a -installsuffix cgo -o /usr/local/bin/csp-reporter ./cmd/api/... && chmod a+x /usr/local/bin/csp-reporter; \
+RUN make build && make DESTDIR=/usr/local/bin install && chmod a+x /usr/local/bin/csp-reporter; \
 	go install github.com/hibiken/asynq/tools/asynq@latest; \
-	apk del .build-backend
+	apk del .build-backend; \
+	rm -fR .git
 
 # ---[ Application ]---
 FROM alpine:${ALPINE_VERSION}
@@ -29,14 +30,14 @@ WORKDIR /srv/http/backend
 RUN adduser -D -H -g http http
 COPY --from=backend-build /srv/http/backend/.env ./
 COPY --from=backend-build /usr/local/bin/csp-reporter /go/bin/asynq /usr/local/bin/
-COPY --from=backend-build /srv/http/backend/keys/ keys/
-COPY --from=backend-build /srv/http/backend/casbin/ casbin/
-COPY --from=backend-build /srv/http/backend/templates/ templates/
-COPY --from=backend-build /srv/http/backend/tasks/config.yml tasks/
+COPY --from=backend-build /srv/http/backend/internal/keys/ internal/keys/
+COPY --from=backend-build /srv/http/backend/internal/casbin/ internal/casbin/
+COPY --from=backend-build /srv/http/backend/internal/templates/ internal/templates/
+COPY --from=backend-build /srv/http/backend/internal/tasks/config.yml internal/tasks/
 
 # Filesystem setup
-RUN chown -R http:http -- tasks/config.yml && \
-	chmod 644 keys/*.json
+RUN chown -R http:http -- internal/tasks/config.yml && \
+	chmod 644 internal/keys/*.json
 
 # Non-root user
 USER http
