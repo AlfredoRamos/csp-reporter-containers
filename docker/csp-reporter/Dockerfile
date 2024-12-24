@@ -7,7 +7,7 @@ FROM golang:${GO_VERSION} AS backend-build
 LABEL maintainer "Alfredo Ramos <alfredoramos@duck.com>"
 
 # Backend setup
-RUN apk add --no-cache --virtual .build-backend make git postgresql-dev
+RUN apk upgrade --no-cache && apk add --no-cache --virtual .build-backend make git postgresql-dev
 WORKDIR /srv/http/backend
 RUN rm -fR tmp
 COPY backend/go.mod backend/go.sum ./
@@ -23,7 +23,7 @@ FROM alpine:${ALPINE_VERSION}
 LABEL maintainer "Alfredo Ramos <alfredoramos@duck.com>"
 
 # Install OS dependencies
-RUN apk add --no-cache curl
+RUN apk upgrade --no-cache && apk add --no-cache curl
 
 # App setup
 WORKDIR /srv/http/backend
