@@ -1,6 +1,6 @@
 # About
 
-Docker Compose setup for **CSP Reporter** using [PostgreSQL](https://www.postgresql.org/), [Redis](https://redis.io/) and [Nginx](https://nginx.org/).
+Docker Compose setup for **CSP Reporter** using [PostgreSQL](https://www.postgresql.org/), [Valkey](https://valkey.io/) and [Nginx](https://nginx.org/).
 
 [![Build Status - Main branch](https://img.shields.io/github/actions/workflow/status/AlfredoRamos/csp-reporter-docker/ci.yml?branch=main&style=flat-square&label=main)](https://github.com/AlfredoRamos/csp-reporter-docker/actions/workflows/ci.yml)
 [![Build Status - Dev branch](https://img.shields.io/github/actions/workflow/status/AlfredoRamos/csp-reporter-docker/ci.yml?branch=dev&style=flat-square&label=dev)](https://github.com/AlfredoRamos/csp-reporter-docker/actions/workflows/ci.yml)
@@ -172,7 +172,7 @@ docker compose run --rm csp-reporter npm run --prefix frontend build
 ### Start containers
 
 ```shell
-docker compose -f docker-compose.dev.yml --env-file backend/.env up --build --force-recreate --remove-orphans -d
+docker compose -f compose.dev.yaml --env-file backend/.env up --build --force-recreate --remove-orphans -d
 ```
 
 ### Stop containers
