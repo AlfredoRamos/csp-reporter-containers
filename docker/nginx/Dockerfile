@@ -1,9 +1,9 @@
 # ---[ Arguments ]---
-ARG NODE_VERSION=23.1.0-alpine
+ARG NODE_VERSION=23.5-alpine
 
 # ---[ Frontend ]---
 FROM node:${NODE_VERSION} AS frontend-build
-LABEL maintainer "Alfredo Ramos <alfredoramos@duck.com>"
+LABEL org.opencontainers.image.authors="Alfredo Ramos <alfredoramos@duck.com>"
 
 # Frontend setup
 WORKDIR /srv/http/frontend
@@ -15,7 +15,7 @@ RUN npm run build
 
 # ---[ Application ]---
 FROM nginx:mainline-alpine
-LABEL maintainer "Alfredo Ramos <alfredoramos@duck.com>"
+LABEL org.opencontainers.image.authors="Alfredo Ramos <alfredoramos@duck.com>"
 
 # App setup
 WORKDIR /srv/http/frontend

@@ -24,8 +24,8 @@ jobs:
           sed -ri 's/^(DB_NAME=)/\1test_csp_reporter/' backend/.env
           sed -ri 's/^(DB_USER=)/\1postgres/' backend/.env
           sed -ri "s/^(DB_PASS=)/\1$(dd bs=512 if=/dev/urandom count=1 2>/dev/null | LC_ALL=C tr -dc "a-zA-Z0-9" | head -c 35)/" backend/.env
-          sed -ri 's/^(REDIS_HOST=).*?$/\1redis/' backend/.env
-          sed -ri "s/^(REDIS_PASS=)/\1$(dd bs=512 if=/dev/urandom count=1 2>/dev/null | LC_ALL=C tr -dc "a-zA-Z0-9" | head -c 35)/" backend/.env
+          sed -ri 's/^(CACHE_HOST=).*?$/\1valkey/' backend/.env
+          sed -ri "s/^(CACHE_PASS=)/\1$(dd bs=512 if=/dev/urandom count=1 2>/dev/null | LC_ALL=C tr -dc "a-zA-Z0-9" | head -c 35)/" backend/.env
           sed -ri "s/^(COOKIE_SECRET_KEY=)/\1$(dd bs=512 if=/dev/urandom count=1 2>/dev/null | LC_ALL=C tr -dc "a-zA-Z0-9" | head -c 32)/" backend/.env
           sed -ri 's/^(HCAPTCHA_SITE_KEY=)/\110000000-ffff-ffff-ffff-000000000001/' backend/.env
           sed -ri 's/^(HCAPTCHA_SECRET_KEY=)/\10x0000000000000000000000000000000000000000/' backend/.env
@@ -62,7 +62,7 @@ jobs:
         with:
           scan-type: 'image'
           scanners: 'vuln,misconfig,secret'
-          image-ref: 'alpine:3.20'
+          image-ref: 'alpine:3.21'
           trivy-config: 'trivy.yaml'
 
       - name: Scan Go image
@@ -72,7 +72,7 @@ jobs:
         with:
           scan-type: 'image'
           scanners: 'vuln,misconfig,secret'
-          image-ref: 'golang:1.23.4-alpine'
+          image-ref: 'golang:1.23-alpine'
           trivy-config: 'trivy.yaml'
           skip-setup-trivy: true
 
@@ -83,7 +83,7 @@ jobs:
         with:
           scan-type: 'image'
           scanners: 'vuln,misconfig,secret'
-          image-ref: 'node:23.1.0-alpine'
+          image-ref: 'node:23.5-alpine'
           trivy-config: 'trivy.yaml'
           skip-setup-trivy: true
 
@@ -98,14 +98,14 @@ jobs:
           trivy-config: 'trivy.yaml'
           skip-setup-trivy: true
 
-      - name: Scan Redis image
+      - name: Scan Valkey image
         continue-on-error: true
         if: ${{ !cancelled() }}
         uses: aquasecurity/trivy-action@master
         with:
           scan-type: 'image'
           scanners: 'vuln,misconfig,secret'
-          image-ref: 'redis:7-alpine'
+          image-ref: 'valkey/valkey:8-alpine'
           trivy-config: 'trivy.yaml'
           skip-setup-trivy: true
 

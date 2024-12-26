@@ -9,9 +9,9 @@ services:
       - 3000
     depends_on:
       - postgresql
-      - redis
+      - valkey
     healthcheck:
-      test: ["CMD-SHELL", "curl --fail 'http://${APP_ADDRESS}/api/health'"]
+      test: ['CMD-SHELL', "curl --fail 'http://${APP_ADDRESS}/api/health'"]
       interval: 1m
       timeout: 30s
       retries: 3
@@ -23,8 +23,8 @@ services:
 
   nginx:
     build:
-     context: .
-     dockerfile: docker/nginx/Dockerfile
+      context: .
+      dockerfile: docker/nginx/Dockerfile
     image: alfredoramos/csp-reporter-frontend:dev-alpine
     restart: unless-stopped
     ports:
@@ -35,7 +35,7 @@ services:
     depends_on:
       - csp-reporter
     healthcheck:
-      test: ["CMD-SHELL", "curl --fail http://nginx:8080/health"]
+      test: ['CMD-SHELL', 'curl --fail http://nginx:8080/health']
       interval: 1m
       timeout: 30s
       retries: 3
@@ -61,9 +61,9 @@ services:
     user: '70'
     restart: unless-stopped
     environment:
-      POSTGRES_DB: "${DB_NAME}"
-      POSTGRES_USER: "${DB_USER}"
-      POSTGRES_PASSWORD: "${DB_PASS}"
+      POSTGRES_DB: '${DB_NAME}'
+      POSTGRES_USER: '${DB_USER}'
+      POSTGRES_PASSWORD: '${DB_PASS}'
       POSTGRES_INITDB_ARGS: --auth-host=scram-sha-256 --auth-local=scram-sha-256
       POSTGRES_HOST_AUTH_METHOD: scram-sha-256
     ports:
@@ -73,7 +73,11 @@ services:
     #   -c ssl_cert_file=/var/lib/postgresql/server.crt
     #   -c ssl_key_file=/var/lib/postgresql/server.key
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U '${DB_USER}' -h '${DB_HOST}' -d '${DB_NAME}'"]
+      test:
+        [
+          'CMD-SHELL',
+          "pg_isready -U '${DB_USER}' -h '${DB_HOST}' -d '${DB_NAME}'",
+        ]
       interval: 1m
       timeout: 30s
       retries: 3
@@ -85,14 +89,18 @@ services:
       # - /etc/letsencrypt/live/mailsentry.top/fullchain.pem:/var/lib/postgresql/server.crt:ro
       # - /etc/letsencrypt/live/mailsentry.top/privkey.pem:/var/lib/postgresql/server.key:ro
 
-  redis:
-    image: redis:7-alpine
-    user: 'redis'
+  valkey:
+    image: valkey/valkey:8-alpine
+    user: 'valkey'
     restart: unless-stopped
     command: >
-      --requirepass "${REDIS_PASS}"
+      --requirepass "${CACHE_PASS}"
     healthcheck:
-      test: ["CMD-SHELL", "echo 'auth ${REDIS_PASS}\nping' | redis-cli -h '${REDIS_HOST}' | grep 'PONG'"]
+      test:
+        [
+          'CMD-SHELL',
+          "echo 'auth ${CACHE_PASS}\nping' | valkey-cli -h '${CACHE_HOST}' | grep 'PONG'",
+        ]
       interval: 1m
       timeout: 30s
       retries: 3
@@ -100,47 +108,47 @@ services:
     networks:
       - cache-dev
     volumes:
-      - rdbdata-dev:/data
+      - vkdbdata-dev:/data
 
-  mailpit:
-    image: axllent/mailpit:v1.21
-    restart: unless-stopped
-    ports:
-      - 8025:8025
-      - 1025:1025
-      - 1110:1110
-    environment:
-      MP_DATABASE: "${MAILPIT_DATABASE}"
-      MP_MAX_MESSAGES: "${MAILPIT_MAX_MESSAGES}"
-      MP_TAG: "${MAILPIT_TAG}"
-      MP_SMTP_AUTH_ALLOW_INSECURE: "${MAILPIT_SMTP_AUTH_ALLOW_INSECURE}"
-      MP_SMTP_AUTH_ACCEPT_ANY: "${MAILPIT_SMTP_AUTH_ACCEPT_ANY}"
-      MP_ENABLE_SPAMASSASSIN: "${MAILPIT_SPAMASSASSIN_HOST}"
-    depends_on:
-      - spamassassin
-    networks:
-      - mail-dev
-    volumes:
-      - maildata-dev:/data
+  # mailpit:
+  #   image: axllent/mailpit:v1.21
+  #   restart: unless-stopped
+  #   ports:
+  #     - 8025:8025
+  #     - 1025:1025
+  #     - 1110:1110
+  #   environment:
+  #     MP_DATABASE: '${MAILPIT_DATABASE}'
+  #     MP_MAX_MESSAGES: '${MAILPIT_MAX_MESSAGES}'
+  #     MP_TAG: '${MAILPIT_TAG}'
+  #     MP_SMTP_AUTH_ALLOW_INSECURE: '${MAILPIT_SMTP_AUTH_ALLOW_INSECURE}'
+  #     MP_SMTP_AUTH_ACCEPT_ANY: '${MAILPIT_SMTP_AUTH_ACCEPT_ANY}'
+  #     MP_ENABLE_SPAMASSASSIN: '${MAILPIT_SPAMASSASSIN_HOST}'
+  #   depends_on:
+  #     - spamassassin
+  #   networks:
+  #     - mail-dev
+  #   volumes:
+  #     - maildata-dev:/data
 
-  spamassassin:
-    image: axllent/spamassassin:latest
-    restart: unless-stopped
-    expose:
-      - 783
-    environment:
-      DNS_CHECKS: 0
-    networks:
-      - mail-dev
+  # spamassassin:
+  #   image: axllent/spamassassin:latest
+  #   restart: unless-stopped
+  #   expose:
+  #     - 783
+  #   environment:
+  #     DNS_CHECKS: 0
+  #   networks:
+  #     - mail-dev
 
 networks:
   backend-dev: {}
   frontend-dev: {}
   database-dev: {}
   cache-dev: {}
-  mail-dev: {}
+  # mail-dev: {}
 
 volumes:
   pgsqldata-dev: {}
-  rdbdata-dev: {}
-  maildata-dev: {}
+  vkdbdata-dev: {}
+  # maildata-dev: {}

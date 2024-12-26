@@ -1,10 +1,10 @@
 # ---[ Arguments ]---
-ARG ALPINE_VERSION=3.20
-ARG GO_VERSION=1.23.4-alpine
+ARG ALPINE_VERSION=3.21
+ARG GO_VERSION=1.23-alpine
 
 # ---[ Backend ]---
 FROM golang:${GO_VERSION} AS backend-build
-LABEL maintainer "Alfredo Ramos <alfredoramos@duck.com>"
+LABEL org.opencontainers.image.authors="Alfredo Ramos <alfredoramos@duck.com>"
 
 # Backend setup
 RUN apk upgrade --no-cache && apk add --no-cache --virtual .build-backend make git postgresql-dev
@@ -20,7 +20,7 @@ RUN make build && make DESTDIR=/usr/local/bin install && chmod a+x /usr/local/bi
 
 # ---[ Application ]---
 FROM alpine:${ALPINE_VERSION}
-LABEL maintainer "Alfredo Ramos <alfredoramos@duck.com>"
+LABEL org.opencontainers.image.authors="Alfredo Ramos <alfredoramos@duck.com>"
 
 # Install OS dependencies
 RUN apk upgrade --no-cache && apk add --no-cache curl
