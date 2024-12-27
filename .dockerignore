@@ -11,6 +11,8 @@
 **/*.crt
 **/*.cer
 **/*.cert
+**/*.dockerfile
+**/Dockerfile
 
 # Server
 **/systemd

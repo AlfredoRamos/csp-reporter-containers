@@ -6,47 +6,6 @@ on:
   pull_request: {}
 
 jobs:
-  test:
-    if: ${{ !contains(github.event.head_commit.message, 'skip ci') }}
-    name: Test
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout source
-        uses: actions/checkout@v4
-        with:
-          submodules: true
-
-      - name: Generate environment variables
-        id: setup-env
-        run: |
-          cp backend/.env.example backend/.env
-          sed -ri 's/^(DB_HOST=).*?$/\1postgresql/' backend/.env
-          sed -ri 's/^(DB_NAME=)/\1test_csp_reporter/' backend/.env
-          sed -ri 's/^(DB_USER=)/\1postgres/' backend/.env
-          sed -ri "s/^(DB_PASS=)/\1$(dd bs=512 if=/dev/urandom count=1 2>/dev/null | LC_ALL=C tr -dc "a-zA-Z0-9" | head -c 35)/" backend/.env
-          sed -ri 's/^(CACHE_HOST=).*?$/\1valkey/' backend/.env
-          sed -ri "s/^(CACHE_PASS=)/\1$(dd bs=512 if=/dev/urandom count=1 2>/dev/null | LC_ALL=C tr -dc "a-zA-Z0-9" | head -c 35)/" backend/.env
-          sed -ri "s/^(COOKIE_SECRET_KEY=)/\1$(dd bs=512 if=/dev/urandom count=1 2>/dev/null | LC_ALL=C tr -dc "a-zA-Z0-9" | head -c 32)/" backend/.env
-          sed -ri 's/^(HCAPTCHA_SITE_KEY=)/\110000000-ffff-ffff-ffff-000000000001/' backend/.env
-          sed -ri 's/^(HCAPTCHA_SECRET_KEY=)/\10x0000000000000000000000000000000000000000/' backend/.env
-          cp frontend/.env.example frontend/.env
-          sed -ri 's/^(VITE_APP_DOMAIN=)/\1localhost/' frontend/.env
-          sed -ri 's/^(VITE_HCAPTCHA_SITE_KEY=)/\110000000-ffff-ffff-ffff-000000000001/' frontend/.env
-
-      - name: Setup Go
-        uses: actions/setup-go@v5
-        with:
-          go-version: '^1.23.4'
-
-      - name: Setup keys
-        run: |
-          mkdir -p frontend/keys
-          (cd backend && make keys)
-          cp -a backend/internal/keys/{signing-public,encryption-private}.json frontend/keys/
-
-      - name: Build images
-        run: docker compose --env-file backend/.env build
-
   security:
     if: ${{ !contains(github.event.head_commit.message, 'skip security') }}
     name: Security
@@ -54,6 +13,8 @@ jobs:
     steps:
       - name: Checkout source
         uses: actions/checkout@v4
+        with:
+          submodules: true
 
       - name: Scan Alpine Linux image
         continue-on-error: true
@@ -128,5 +89,58 @@ jobs:
           scan-type: 'fs'
           scanners: 'vuln,misconfig,secret'
           scan-ref: '.'
+          trivy-config: 'trivy.yaml'
+          skip-setup-trivy: true
+
+      - name: Generate environment variables
+        id: setup-env
+        run: |
+          cp backend/.env.example backend/.env
+          sed -ri 's/^(DB_HOST=).*?$/\1postgresql/' backend/.env
+          sed -ri 's/^(DB_NAME=)/\1test_csp_reporter/' backend/.env
+          sed -ri 's/^(DB_USER=)/\1postgres/' backend/.env
+          sed -ri "s/^(DB_PASS=)/\1$(dd bs=512 if=/dev/urandom count=1 2>/dev/null | LC_ALL=C tr -dc "a-zA-Z0-9" | head -c 35)/" backend/.env
+          sed -ri 's/^(CACHE_HOST=).*?$/\1valkey/' backend/.env
+          sed -ri "s/^(CACHE_PASS=)/\1$(dd bs=512 if=/dev/urandom count=1 2>/dev/null | LC_ALL=C tr -dc "a-zA-Z0-9" | head -c 35)/" backend/.env
+          sed -ri "s/^(COOKIE_SECRET_KEY=)/\1$(dd bs=512 if=/dev/urandom count=1 2>/dev/null | LC_ALL=C tr -dc "a-zA-Z0-9" | head -c 32)/" backend/.env
+          sed -ri 's/^(HCAPTCHA_SITE_KEY=)/\110000000-ffff-ffff-ffff-000000000001/' backend/.env
+          sed -ri 's/^(HCAPTCHA_SECRET_KEY=)/\10x0000000000000000000000000000000000000000/' backend/.env
+          cp frontend/.env.example frontend/.env
+          sed -ri 's/^(VITE_APP_DOMAIN=)/\1localhost/' frontend/.env
+          sed -ri 's/^(VITE_HCAPTCHA_SITE_KEY=)/\110000000-ffff-ffff-ffff-000000000001/' frontend/.env
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '^1.23.4'
+
+      - name: Setup keys
+        run: |
+          mkdir -p frontend/keys
+          (cd backend && make keys)
+          cp -a backend/internal/keys/{signing-public,encryption-private}.json frontend/keys/
+
+      - name: Build images
+        run: docker compose --env-file backend/.env build --pull
+
+      - name: Scan backend image
+        continue-on-error: true
+        if: ${{ !cancelled() }}
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'image'
+          scanners: 'vuln,misconfig,secret'
+          image-ref: 'alfredoramos/csp-reporter-backend:alpine'
+          trivy-config: 'trivy.yaml'
+          skip-setup-trivy: true
+
+      - name: Scan frontend image
+        continue-on-error: true
+        if: ${{ !cancelled() }}
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'image'
+          scanners: 'vuln,misconfig,secret'
+          image-ref: 'alfredoramos/csp-reporter-frontend:alpine'
           trivy-config: 'trivy.yaml'
           skip-setup-trivy: true

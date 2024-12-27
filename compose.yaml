@@ -1,8 +1,8 @@
 services:
   csp-reporter:
     build:
-      context: .
-      dockerfile: docker/csp-reporter/Dockerfile
+      context: backend
+      dockerfile: Dockerfile
     image: alfredoramos/csp-reporter-backend:alpine
     restart: unless-stopped
     expose:
@@ -23,8 +23,8 @@ services:
 
   nginx:
     build:
-      context: .
-      dockerfile: docker/nginx/Dockerfile
+      context: frontend
+      dockerfile: Dockerfile
     image: alfredoramos/csp-reporter-frontend:alpine
     restart: unless-stopped
     ports:

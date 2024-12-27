@@ -108,7 +108,7 @@ sudo cp -a backend/internal/keys/{signing-public,encryption-private}.json fronte
 ### Build images
 
 ```shell
-docker compose --env-file backend/.env build
+docker compose --env-file backend/.env build --pull
 ```
 
 ### Start containers
