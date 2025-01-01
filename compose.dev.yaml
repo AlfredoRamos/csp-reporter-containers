@@ -25,7 +25,7 @@ services:
     build:
       context: frontend
       dockerfile: Dockerfile
-    image: alfredoramos/csp-reporter-frontend:dev-alpine
+    image: alfredoramos/csp-reporter-frontend:alpine
     restart: unless-stopped
     ports:
       - 80:80
