@@ -117,7 +117,7 @@ jobs:
       - name: Setup keys
         run: |
           mkdir -p frontend/keys
-          (cd backend && make keys)
+          (cd backend && make utils && make keys)
           cp -a backend/internal/keys/{signing-public,encryption-private}.json frontend/keys/
 
       - name: Build images
