@@ -44,7 +44,7 @@ jobs:
         with:
           scan-type: 'image'
           scanners: 'vuln,misconfig,secret'
-          image-ref: 'node:23.5-alpine'
+          image-ref: 'node:23.10-alpine'
           trivy-config: 'trivy.yaml'
           skip-setup-trivy: true
 
@@ -96,6 +96,7 @@ jobs:
         id: setup-env
         run: |
           cp backend/.env.example backend/.env
+          sed -ri "s/^(APP_KEY=)/\1$(dd bs=512 if=/dev/urandom count=1 2>/dev/null | LC_ALL=C tr -dc "a-zA-Z0-9" | head -c 64)/" backend/.env
           sed -ri 's/^(DB_HOST=).*?$/\1postgresql/' backend/.env
           sed -ri 's/^(DB_NAME=)/\1test_csp_reporter/' backend/.env
           sed -ri 's/^(DB_USER=)/\1postgres/' backend/.env
