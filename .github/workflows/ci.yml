@@ -44,7 +44,7 @@ jobs:
         with:
           scan-type: 'image'
           scanners: 'vuln,misconfig,secret'
-          image-ref: 'node:23.10-alpine'
+          image-ref: 'node:24.1-alpine'
           trivy-config: 'trivy.yaml'
           skip-setup-trivy: true
 
@@ -113,7 +113,7 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
-          go-version: '^1.24.0'
+          go-version: '^1.24.3'
 
       - name: Setup keys
         run: |
