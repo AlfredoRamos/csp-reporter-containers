@@ -23,7 +23,7 @@ jobs:
         with:
           scan-type: 'image'
           scanners: 'vuln,misconfig,secret'
-          image-ref: 'alpine:3.21'
+          image-ref: 'alpine:3.22'
           trivy-config: 'trivy.yaml'
 
       - name: Scan Go image
