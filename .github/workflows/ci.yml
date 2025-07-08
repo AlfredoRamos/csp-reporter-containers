@@ -44,7 +44,7 @@ jobs:
         with:
           scan-type: 'image'
           scanners: 'vuln,misconfig,secret'
-          image-ref: 'node:24.1-alpine'
+          image-ref: 'node:24.2-alpine'
           trivy-config: 'trivy.yaml'
           skip-setup-trivy: true
 
