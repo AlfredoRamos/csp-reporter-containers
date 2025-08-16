@@ -131,7 +131,7 @@ jobs:
         with:
           scan-type: 'image'
           scanners: 'vuln,misconfig,secret'
-          image-ref: 'alfredoramos/csp-reporter-backend:alpine'
+          image-ref: 'alfredoramos/csp-reporter-backend:latest-alpine'
           trivy-config: 'trivy.yaml'
           skip-setup-trivy: true
 
@@ -142,6 +142,6 @@ jobs:
         with:
           scan-type: 'image'
           scanners: 'vuln,misconfig,secret'
-          image-ref: 'alfredoramos/csp-reporter-frontend:alpine'
+          image-ref: 'alfredoramos/csp-reporter-frontend:latest-alpine'
           trivy-config: 'trivy.yaml'
           skip-setup-trivy: true

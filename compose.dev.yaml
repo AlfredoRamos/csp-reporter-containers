@@ -3,7 +3,7 @@ services:
     build:
       context: backend
       dockerfile: Dockerfile
-    image: alfredoramos/csp-reporter-backend:alpine
+    image: alfredoramos/csp-reporter-backend:latest-alpine
     restart: unless-stopped
     expose:
       - 3000
@@ -25,7 +25,7 @@ services:
     build:
       context: frontend
       dockerfile: Dockerfile
-    image: alfredoramos/csp-reporter-frontend:alpine
+    image: alfredoramos/csp-reporter-frontend:latest-alpine
     restart: unless-stopped
     ports:
       - 80:80

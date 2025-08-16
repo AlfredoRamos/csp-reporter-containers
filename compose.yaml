@@ -3,7 +3,7 @@ services:
     build:
       context: backend
       dockerfile: Dockerfile
-    image: alfredoramos/csp-reporter-backend:alpine
+    image: alfredoramos/csp-reporter-backend:latest-alpine
     restart: unless-stopped
     expose:
       - 3000
@@ -20,12 +20,19 @@ services:
       - backend
       - database
       - cache
+    volumes:
+      - ./backend/internal/keys/signing-private.json:/srv/http/backend/internal/keys/signing-private.json:ro
+      - ./backend/internal/keys/signing-public.json:/srv/http/backend/internal/keys/signing-public.json:ro
+      - ./backend/internal/keys/encryption-private.json:/srv/http/backend/internal/keys/encryption-private.json:ro
+      - ./backend/internal/keys/encryption-public.json:/srv/http/backend/internal/keys/encryption-public.json:ro
+      - ./backend/internal/keys/dkim.key:/srv/http/backend/internal/keys/dkim.key:ro
+      - ./backend/internal/keys/dkim.pub:/srv/http/backend/internal/keys/dkim.pub:ro
 
   nginx:
     build:
       context: frontend
       dockerfile: Dockerfile
-    image: alfredoramos/csp-reporter-frontend:alpine
+    image: alfredoramos/csp-reporter-frontend:latest-alpine
     restart: unless-stopped
     ports:
       - 80:80
