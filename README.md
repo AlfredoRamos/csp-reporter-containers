@@ -94,12 +94,7 @@ See the README in the [AlfredoRamos/csp-reporter-backend](https://github.com/Alf
 
 See the README in the [AlfredoRamos/csp-reporter-frontend](https://github.com/AlfredoRamos/csp-reporter-frontend) repository.
 
-Additionally copy the signing and encryption keys for JWT (JWS + JWE) validation and parsing.
-
-```shell
-mkdir -p frontend/keys
-sudo cp -a backend/internal/keys/{signing-public,encryption-private}.json frontend/keys/
-```
+Additionally mount the signing and encryption keys for JWT (JWS + JWE) validation and parsing.
 
 # Run app
 
@@ -108,7 +103,7 @@ sudo cp -a backend/internal/keys/{signing-public,encryption-private}.json fronte
 ### Build images
 
 ```shell
-docker compose --env-file backend/.env build --pull
+docker compose --env-file frontend/.env --env-file backend/.env build --pull
 ```
 
 ### Start containers
@@ -128,9 +123,9 @@ docker compose --env-file backend/.env down --remove-orphans
 The following commands help to minimize or avoid at all the downtime while upgrading the application.
 
 ```shell
-docker compose --env-file backend/.env up --scale csp-reporter=2 --no-recreate -d
+docker compose --env-file frontend/.env --env-file backend/.env up --scale csp-reporter=2 --no-recreate -d
 docker rm -f csp-reporter_csp-reporter_<n>
-docker compose --env-file backend/.env up --scale csp-reporter=1 --no-recreate -d
+docker compose --env-file frontend/.env --env-file backend/.env up --scale csp-reporter=1 --no-recreate -d
 ```
 
 ### Remove cached application
@@ -148,31 +143,16 @@ Where `<prefix>` is usually the folder where the YML file is located.
 The SSL public and private key files need their permissions to be fixed directly in the host, as they will be mounted inside, or inside the containers.
 
 ```shell
-docker compose run --rm postgresql chmod 600 /var/lib/postgresql/server.{crt,key}
-docker compose run --rm postgresql chown 70 /var/lib/postgresql/server.{crt,key}
-```
-
-### Manual frontend transpiling
-
-The transpilation is done automatically by the containers, however if you need to do it manually you'll need to run the following commands.
-
-```shell
-docker compose run --rm csp-reporter npm --prefix frontend install frontend
-docker compose run --rm csp-reporter npm run --prefix frontend build
+docker compose --env-file backend/.env run --rm postgresql chmod 600 /var/lib/postgresql/server.{crt,key}
+docker compose --env-file backend/.env run --rm postgresql chown 70 /var/lib/postgresql/server.{crt,key}
 ```
 
 ## Development
 
-### Setup
-
-```shell
-(cd frontend && npm ci --omit dev && npm run build)
-```
-
 ### Start containers
 
 ```shell
-docker compose -f compose.dev.yaml --env-file backend/.env up --build --force-recreate --remove-orphans -d
+docker compose -f compose.dev.yaml --env-file frontend/.env --env-file backend/.env up --build --force-recreate --remove-orphans -d
 ```
 
 ### Stop containers

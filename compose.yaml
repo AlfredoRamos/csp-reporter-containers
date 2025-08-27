@@ -3,7 +3,7 @@ services:
     build:
       context: backend
       dockerfile: Dockerfile
-    image: alfredoramos/csp-reporter-backend:alpine
+    image: alfredoramos/csp-reporter-backend:latest-alpine
     restart: unless-stopped
     expose:
       - 3000
@@ -20,12 +20,48 @@ services:
       - backend
       - database
       - cache
+    volumes:
+      - ./backend/internal/keys/signing-private.json:/srv/http/backend/internal/keys/signing-private.json:ro
+      - ./backend/internal/keys/signing-public.json:/srv/http/backend/internal/keys/signing-public.json:ro
+      - ./backend/internal/keys/encryption-private.json:/srv/http/backend/internal/keys/encryption-private.json:ro
+      - ./backend/internal/keys/encryption-public.json:/srv/http/backend/internal/keys/encryption-public.json:ro
+      - ./backend/internal/keys/dkim.key:/srv/http/backend/internal/keys/dkim.key:ro
+      - ./backend/internal/keys/dkim.pub:/srv/http/backend/internal/keys/dkim.pub:ro
+    secrets:
+      - app_key
+      - db_pass
+      - cache_pass
+      - cookie_secret_key
+      - aws_access_key_id
+      - aws_secret_access_key
+      - hcaptcha_site_key
+      - hcaptcha_secret_key
+      - email_password
+      - sentry_dsn
 
   nginx:
     build:
+      secrets:
+        - hcaptcha_site_key
       context: frontend
       dockerfile: Dockerfile
-    image: alfredoramos/csp-reporter-frontend:alpine
+      args:
+        - VITE_APP_TITLE
+        - VITE_APP_DESC
+        - VITE_APP_DOMAIN
+        - VITE_API_HOST
+        - VITE_ENABLE_USER_REGISTER
+        - VITE_LOCALE
+        - VITE_TIMEZONE
+        - VITE_HCAPTCHA_SIZE
+        - VITE_MIN_PASSWORD_LENGTH
+        - VITE_GOOGLE_ANALYTICS
+        - VITE_COMPANY_NAME
+        - VITE_COMPANY_URL
+        - VITE_FACEBOOK_LOCALE
+        - VITE_TWITTER_AUTHOR
+        - VITE_WHATSAPP_PHONE
+    image: alfredoramos/csp-reporter-frontend:latest-alpine
     restart: unless-stopped
     ports:
       - 80:80
@@ -55,6 +91,8 @@ services:
       - /etc/letsencrypt/live/mailsentry.top/fullchain.pem:/srv/ssl/server.crt:ro
       - /etc/letsencrypt/live/mailsentry.top/privkey.pem:/srv/ssl/server.key:ro
       # - /srv/ssl/alfredoramos.mx/intermediate.crt:/srv/ssl/intermediate.crt:ro
+      - ./backend/internal/keys/signing-public.json:/srv/http/frontend/keys/signing-public.json:ro
+      - ./backend/internal/keys/encryption-private.json:/srv/http/frontend/keys/encryption-private.json:ro
 
   postgresql:
     image: postgres:17-alpine
@@ -63,7 +101,7 @@ services:
     environment:
       POSTGRES_DB: '${DB_NAME}'
       POSTGRES_USER: '${DB_USER}'
-      POSTGRES_PASSWORD: '${DB_PASS}'
+      POSTGRES_PASSWORD_FILE: /run/secrets/db_pass
       POSTGRES_INITDB_ARGS: --auth-host=scram-sha-256 --auth-local=scram-sha-256
       POSTGRES_HOST_AUTH_METHOD: scram-sha-256
     ports:
@@ -88,6 +126,8 @@ services:
       - pgsqldata:/var/lib/postgresql/data
       - /etc/letsencrypt/live/mailsentry.top/fullchain.pem:/var/lib/postgresql/server.crt:ro
       - /etc/letsencrypt/live/mailsentry.top/privkey.pem:/var/lib/postgresql/server.key:ro
+    secrets:
+      - db_pass
 
   valkey:
     image: valkey/valkey:8-alpine
@@ -109,6 +149,8 @@ services:
       - cache
     volumes:
       - vkdbdata:/data
+    secrets:
+      - cache_pass
 
 networks:
   backend: {}
@@ -119,3 +161,25 @@ networks:
 volumes:
   pgsqldata: {}
   vkdbdata: {}
+
+secrets:
+  app_key:
+    environment: APP_KEY
+  db_pass:
+    environment: DB_PASS
+  cache_pass:
+    environment: CACHE_PASS
+  cookie_secret_key:
+    environment: COOKIE_SECRET_KEY
+  aws_access_key_id:
+    environment: AWS_ACCESS_KEY_ID
+  aws_secret_access_key:
+    environment: AWS_SECRET_ACCESS_KEY
+  hcaptcha_site_key:
+    environment: HCAPTCHA_SITE_KEY
+  hcaptcha_secret_key:
+    environment: HCAPTCHA_SECRET_KEY
+  email_password:
+    environment: EMAIL_PASSWORD
+  sentry_dsn:
+    environment: SENTRY_DSN
