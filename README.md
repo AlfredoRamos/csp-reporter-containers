@@ -120,7 +120,7 @@ docker compose --env-file backend/.env up --no-build --force-recreate --remove-o
 ### Stop containers
 
 ```shell
-docker compose down --remove-orphans
+docker compose --env-file backend/.env down --remove-orphans
 ```
 
 ### Upgrade containers
@@ -178,5 +178,5 @@ docker compose -f compose.dev.yaml --env-file backend/.env up --build --force-re
 ### Stop containers
 
 ```shell
-docker compose down --remove-orphans
+docker compose -f compose.dev.yaml --env-file backend/.env down --remove-orphans
 ```
