@@ -33,7 +33,7 @@ jobs:
         with:
           scan-type: 'image'
           scanners: 'vuln,misconfig,secret'
-          image-ref: 'golang:1.24-alpine'
+          image-ref: 'golang:1.25-alpine'
           trivy-config: 'trivy.yaml'
           skip-setup-trivy: true
 
@@ -113,7 +113,7 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
-          go-version: '^1.24.6'
+          go-version: '^1.25.0'
 
       - name: Setup keys
         run: |
@@ -131,7 +131,7 @@ jobs:
         with:
           scan-type: 'image'
           scanners: 'vuln,misconfig,secret'
-          image-ref: 'alfredoramos/csp-reporter-backend:alpine'
+          image-ref: 'alfredoramos/csp-reporter-backend:latest-alpine'
           trivy-config: 'trivy.yaml'
           skip-setup-trivy: true
 
@@ -142,6 +142,6 @@ jobs:
         with:
           scan-type: 'image'
           scanners: 'vuln,misconfig,secret'
-          image-ref: 'alfredoramos/csp-reporter-frontend:alpine'
+          image-ref: 'alfredoramos/csp-reporter-frontend:latest-alpine'
           trivy-config: 'trivy.yaml'
           skip-setup-trivy: true
