@@ -1,6 +1,7 @@
 **/.vscode/*
 !.vscode/*.json
 **/keys/*
+**/tls/*
 **/*.pem
 **/*.key
 **/*.pub

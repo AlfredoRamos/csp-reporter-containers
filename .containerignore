@@ -11,11 +11,12 @@
 **/*.crt
 **/*.cer
 **/*.cert
-**/*.dockerfile
-**/Dockerfile
+**/*.containerfile
+**/Containerfile
 
 # Server
 **/systemd
+**/tls
 **/trivy.yaml
 
 # Backend
@@ -33,19 +34,10 @@
 **/.tool-versions
 
 # Exceptions
-!backend/.env
 !.git/refs/
 !.git/objects/
 !.git/HEAD
 !.git/packed-refs
-!backend/internal/keys/signing-private.json
-!backend/internal/keys/signing-public.json
-!backend/internal/keys/encryption-private.json
-!backend/internal/keys/encryption-public.json
-!backend/internal/keys/dkim.key
-!backend/internal/keys/dkim.pub
 !backend/internal/templates/**/*.md
 !frontend/.env
-!frontend/keys/encryption-private.json
-!frontend/keys/signing-public.json
 !docker/nginx/dhparam.pem

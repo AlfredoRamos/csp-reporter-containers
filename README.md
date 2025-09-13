@@ -82,6 +82,14 @@ git submodule foreach 'git remote prune origin && git fetch origin && git checko
 
 # Configuration
 
+## TLS certificate
+
+```shell
+mkdir tls
+openssl req -x509 -nodes -days 365 -newkey rsa:4096 -sha256 -keyout tls/server.key -out tls/server.crt -subj '/C=MX/ST=CDMX/O=Acme Corporation/OU=Software Development/CN=localhost' -addext 'subjectAltName=DNS:localhost,DNS:127.0.0.1'
+chmod 644 tls/server.{crt,key}
+```
+
 ## Production
 
 In order to work correctly, the environment variables need to be adjusted to use the appropiate Docker Compose service.
@@ -108,19 +116,19 @@ sudo cp -a backend/internal/keys/{signing-public,encryption-private}.json fronte
 ### Build images
 
 ```shell
-docker compose --env-file backend/.env build --pull
+podman compose --env-file backend/.env build --pull
 ```
 
 ### Start containers
 
 ```shell
-docker compose --env-file backend/.env up --no-build --force-recreate --remove-orphans -d
+podman compose --env-file backend/.env up --no-build --force-recreate --remove-orphans -d
 ```
 
 ### Stop containers
 
 ```shell
-docker compose --env-file backend/.env down --remove-orphans
+podman compose --env-file backend/.env down --remove-orphans
 ```
 
 ### Upgrade containers
@@ -128,28 +136,28 @@ docker compose --env-file backend/.env down --remove-orphans
 The following commands help to minimize or avoid at all the downtime while upgrading the application.
 
 ```shell
-docker compose --env-file backend/.env up --scale csp-reporter=2 --no-recreate -d
-docker rm -f csp-reporter_csp-reporter_<n>
-docker compose --env-file backend/.env up --scale csp-reporter=1 --no-recreate -d
+podman compose --env-file backend/.env up --scale csp-reporter=2 --no-recreate -d
+podman rm -f csp-reporter_csp-reporter_<n>
+podman compose --env-file backend/.env up --scale csp-reporter=1 --no-recreate -d
 ```
 
 ### Remove cached application
 
-The frontend and backend are created only once by Docker Compose, so if you don't see the changes you made in the application, remove the `appdata` volume after stoping the containers.
+The frontend and backend are created only once by Podman Compose, so if you don't see the changes you made in the application, remove the `appdata` volume after stoping the containers.
 
 ```shell
-docker volume rm <prefix>_appdata
+podman volume rm <prefix>_appdata
 ```
 
 Where `<prefix>` is usually the folder where the YML file is located.
 
-### SSL
+### TLS
 
-The SSL public and private key files need their permissions to be fixed directly in the host, as they will be mounted inside, or inside the containers.
+The TLS public and private key files need their permissions to be fixed directly in the host, as they will be mounted inside, or inside the containers.
 
 ```shell
-docker compose run --rm postgresql chmod 600 /var/lib/postgresql/server.{crt,key}
-docker compose run --rm postgresql chown 70 /var/lib/postgresql/server.{crt,key}
+podman compose run --rm postgresql chmod 600 /var/lib/postgresql/server.{crt,key}
+podman compose run --rm postgresql chown 70 /var/lib/postgresql/server.{crt,key}
 ```
 
 ### Manual frontend transpiling
@@ -157,8 +165,8 @@ docker compose run --rm postgresql chown 70 /var/lib/postgresql/server.{crt,key}
 The transpilation is done automatically by the containers, however if you need to do it manually you'll need to run the following commands.
 
 ```shell
-docker compose run --rm csp-reporter npm --prefix frontend install frontend
-docker compose run --rm csp-reporter npm run --prefix frontend build
+podman compose run --rm csp-reporter npm --prefix frontend install frontend
+podman compose run --rm csp-reporter npm run --prefix frontend build
 ```
 
 ## Development
@@ -172,11 +180,11 @@ docker compose run --rm csp-reporter npm run --prefix frontend build
 ### Start containers
 
 ```shell
-docker compose -f compose.dev.yaml --env-file backend/.env up --build --force-recreate --remove-orphans -d
+podman compose -f compose.dev.yaml --env-file backend/.env up --build --force-recreate --remove-orphans -d
 ```
 
 ### Stop containers
 
 ```shell
-docker compose -f compose.dev.yaml --env-file backend/.env down --remove-orphans
+podman compose -f compose.dev.yaml --env-file backend/.env down --remove-orphans
 ```
