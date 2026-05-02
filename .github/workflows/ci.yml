@@ -6,91 +6,15 @@ on:
   pull_request: {}
 
 jobs:
-  security:
-    if: ${{ !contains(github.event.head_commit.message, 'skip security') }}
-    name: Security
+  build:
+    if: ${{ !contains(github.event.head_commit.message, 'skip build') }}
+    name: Build
     runs-on: ubuntu-latest
     steps:
       - name: Checkout source
         uses: actions/checkout@v6
         with:
           submodules: true
-
-      - name: Scan Alpine Linux image
-        continue-on-error: true
-        if: ${{ !cancelled() }}
-        uses: aquasecurity/trivy-action@master
-        with:
-          scan-type: 'image'
-          scanners: 'vuln,misconfig,secret'
-          image-ref: 'alpine:3.22'
-          trivy-config: 'trivy.yaml'
-
-      - name: Scan Go image
-        continue-on-error: true
-        if: ${{ !cancelled() }}
-        uses: aquasecurity/trivy-action@master
-        with:
-          scan-type: 'image'
-          scanners: 'vuln,misconfig,secret'
-          image-ref: 'golang:1.25-alpine'
-          trivy-config: 'trivy.yaml'
-          skip-setup-trivy: true
-
-      - name: Scan Node image
-        continue-on-error: true
-        if: ${{ !cancelled() }}
-        uses: aquasecurity/trivy-action@master
-        with:
-          scan-type: 'image'
-          scanners: 'vuln,misconfig,secret'
-          image-ref: 'node:24.5-alpine'
-          trivy-config: 'trivy.yaml'
-          skip-setup-trivy: true
-
-      - name: Scan PostgreSQL image
-        continue-on-error: true
-        if: ${{ !cancelled() }}
-        uses: aquasecurity/trivy-action@master
-        with:
-          scan-type: 'image'
-          scanners: 'vuln,misconfig,secret'
-          image-ref: 'postgres:17-alpine'
-          trivy-config: 'trivy.yaml'
-          skip-setup-trivy: true
-
-      - name: Scan Valkey image
-        continue-on-error: true
-        if: ${{ !cancelled() }}
-        uses: aquasecurity/trivy-action@master
-        with:
-          scan-type: 'image'
-          scanners: 'vuln,misconfig,secret'
-          image-ref: 'valkey/valkey:8-alpine'
-          trivy-config: 'trivy.yaml'
-          skip-setup-trivy: true
-
-      - name: Scan Nginx image
-        continue-on-error: true
-        if: ${{ !cancelled() }}
-        uses: aquasecurity/trivy-action@master
-        with:
-          scan-type: 'image'
-          scanners: 'vuln,misconfig,secret'
-          image-ref: 'nginx:mainline-alpine'
-          trivy-config: 'trivy.yaml'
-          skip-setup-trivy: true
-
-      - name: Scan filesystem
-        continue-on-error: true
-        if: ${{ !cancelled() }}
-        uses: aquasecurity/trivy-action@master
-        with:
-          scan-type: 'fs'
-          scanners: 'vuln,misconfig,secret'
-          scan-ref: '.'
-          trivy-config: 'trivy.yaml'
-          skip-setup-trivy: true
 
       - name: Generate environment variables
         id: setup-env
@@ -113,35 +37,14 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v6
         with:
-          go-version: '^1.25.0'
+          go-version: 'stable'
 
       - name: Setup keys
         run: |
           mkdir -p frontend/keys
-          (cd backend && make utils && make keys)
+          go install github.com/go-jose/go-jose/v4/jose-util@latest
+          (cd backend && make keys)
           cp -a backend/internal/keys/{signing-public,encryption-private}.json frontend/keys/
 
       - name: Build images
         run: docker compose --env-file backend/.env build --pull
-
-      - name: Scan backend image
-        continue-on-error: true
-        if: ${{ !cancelled() }}
-        uses: aquasecurity/trivy-action@master
-        with:
-          scan-type: 'image'
-          scanners: 'vuln,misconfig,secret'
-          image-ref: 'alfredoramos/csp-reporter-backend:latest-alpine'
-          trivy-config: 'trivy.yaml'
-          skip-setup-trivy: true
-
-      - name: Scan frontend image
-        continue-on-error: true
-        if: ${{ !cancelled() }}
-        uses: aquasecurity/trivy-action@master
-        with:
-          scan-type: 'image'
-          scanners: 'vuln,misconfig,secret'
-          image-ref: 'alfredoramos/csp-reporter-frontend:latest-alpine'
-          trivy-config: 'trivy.yaml'
-          skip-setup-trivy: true

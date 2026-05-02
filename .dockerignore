@@ -16,7 +16,6 @@
 
 # Server
 **/systemd
-**/trivy.yaml
 
 # Backend
 **/keys
