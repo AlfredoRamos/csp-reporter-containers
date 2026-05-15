@@ -57,7 +57,7 @@ services:
       # - /srv/ssl/alfredoramos.mx/intermediate.crt:/srv/ssl/intermediate.crt:ro
 
   postgresql:
-    image: postgres:17-alpine
+    image: postgres:18-alpine
     user: '70'
     restart: unless-stopped
     environment:
@@ -90,7 +90,7 @@ services:
       - /etc/letsencrypt/live/mailsentry.top/privkey.pem:/var/lib/postgresql/server.key:ro
 
   valkey:
-    image: valkey/valkey:8-alpine
+    image: valkey/valkey:9-alpine
     user: 'valkey'
     restart: unless-stopped
     command: >
